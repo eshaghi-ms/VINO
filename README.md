@@ -1,3 +1,6 @@
 # VINO
 Variational Physic-informed Neural Operator (VINO) for Learning Partial Differential Equations
+
+Solving partial differential equations (PDEs) is a required step in the simulation of natural and engineering systems. The associated computational costs significantly increase when exploring various scenarios, such as changes in initial or boundary conditions or different input configurations. This study proposes the Variational Physics-Informed Neural Operator (VINO), a deep learning method designed for solving PDEs by minimizing the energy formulation of PDEs. This framework can be trained without any labeled data, resulting in improved performance and accuracy compared to existing deep learning methods and conventional PDE solvers. By discretizing the domain into elements, the variational format allows VINO to overcome the key challenge in physics-informed neural operators, namely the efficient evaluation of the governing equations for computing the loss. Comparative results demonstrate VINO's superior performance, especially as the mesh resolution increases. As a result, this study suggests a better way to incorporate physical laws into neural operators, opening a new approach for modeling and simulating nonlinear and complex processes in science and engineering.
+
 The code will be made available online shortly.
