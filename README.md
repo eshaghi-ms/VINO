@@ -33,6 +33,11 @@ For any inquiries or issues regarding this repository, please feel free to reach
 [GitHub](https://github.com/eshaghi-ms)  
 [LinkedIn](https://www.linkedin.com/in/mohammad-sadegh-eshaghi-89679b240/) 
 
+**Dr. Cosmin Anitescu**  
+[cosmin.anitescu[at]uni-weimar.de ]  
+[ISM](https://www.uni-weimar.de/en/civil-and-environmental-engineering/institute/ism/team/academic-staff/cosmin-anitescu/)  
+[LinkedIn](https://www.linkedin.com/in/cosmin-anitescu-2312914/?originalSubdomain=de) 
+
 **Prof. Dr.-Ing. Timon Rabczuk**  
 [timon.rabczuk[at]uni-weimar.de]  
 [ISM](https://www.uni-weimar.de/de/bau-und-umwelt/institute/ism/team/professuren/prof-dr-ing-timon-rabczuk/)  
