@@ -1,31 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Fourier Neural Operator example for Forth-order equation
+Variational Physics-informed Neural Operator example for Forth-order equation
 
 Problem statement:
     Solve the equation k u''''(x) = f(x) for x in (0, 1) with Dirichlet boundary
     conditions u(0) = u(1) = u'(0) = u'(1) = 0,
     where f(x) is a given function and u(x) is the unknown function
 """
-
-import torch
-# import random
+import os
 import numpy as np
-import torch.nn.functional as F
+import torch
 
 import matplotlib.pyplot as plt
+# import random
 from timeit import default_timer
 
 from utils.generate_data_antiderivative import generate_inputs
 from utils.solvers import Beam1D_solve
 from utils.postprocessing import plot_pred
 from utils.fno_1d import FNO1d
-from utils.fno_utils import count_params, LpLoss, train_fno
+from utils.fno_utils import count_params, LpLoss, train_vino_beam
 
 torch.manual_seed(42)
 np.random.seed(42)
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
+
+
+class FNO_Beam1D(FNO1d):
+    def forward(self, x):
+        x = super().forward(x)
+        x[:, 0, :] = 0
+        x[:, -1, :] = 0
+        return x
+
+
 ################################################################
 #  configurations
 ################################################################
@@ -46,7 +55,7 @@ learning_rate = 0.001
 epochs = 2000
 gamma = 0.5
 
-modes = 16
+modes = 32
 width = 64
 
 if s // 2 + 1 < modes:
@@ -73,7 +82,7 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(F_test,
                                           batch_size=batch_size, shuffle=False)
 
 # model
-model = FNO1d(modes, width).to(device)
+model = FNO_Beam1D(modes, width).to(device)
 n_params = count_params(model)
 print(f'the model has {n_params} parameters.')
 
@@ -87,15 +96,79 @@ scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=gamma, 
 myLoss = LpLoss(d=1, size_average=False)
 
 t1 = default_timer()
-train_mse_log, train_l2_log, test_l2_log = train_fno(model, train_loader, test_loader, myLoss, optimizer,
-                                                     scheduler, device, epochs, batch_size)
+train_l2_log, train_l2_data_log, test_l2_log, train_l2_batch_log, test_l2_batch_log = (
+    train_vino_beam(model, train_loader, test_loader, myLoss, optimizer, scheduler, device, epochs, batch_size))
 print("Training time: ", default_timer() - t1)
 
-# plot the convergence of the losses
-plt.plot(train_l2_log, label='Train L2')
-plt.plot(test_l2_log, label='Test L2')
-plt.legend()
+epochs_range = np.arange(1, epochs + 1)
+# Prepare training loss bands
+train_l2_batch_min = [min(epoch) for epoch in train_l2_batch_log]
+train_l2_batch_max = [max(epoch) for epoch in train_l2_batch_log]
+# Prepare test loss bands
+test_l2_batch_min = [min(epoch) for epoch in test_l2_batch_log]
+test_l2_batch_max = [max(epoch) for epoch in test_l2_batch_log]
+
+folder = "plots"
+fig_font = "DejaVu Serif"
+plt.rcParams["font.family"] = fig_font
+plt.rcParams.update({'font.size': 12})
+os.makedirs(folder, exist_ok=True)
+
+plt.figure(figsize=(10, 6))
+# Plot training loss band
+plt.fill_between(epochs_range[1:], train_l2_batch_min[1:], train_l2_batch_max[1:],
+                 color='blue', alpha=0.2, label='Training Loss Band')
+plt.plot(epochs_range[1:], train_l2_log[1:], color='blue', label='Average Training Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Training Loss Trend')
+plt.legend(loc='best')
+plt.grid(alpha=0.5)
+plt.ylim((-40, 20))
+full_name = folder + '/' + "TrainingLoss"
+plt.savefig(full_name + '.png', dpi=600, bbox_inches='tight')
 plt.show()
+
+
+plt.figure(figsize=(10, 6))
+# Plot testing loss band
+plt.fill_between(epochs_range[1:], test_l2_batch_min[1:], test_l2_batch_max[1:],
+                 color='orange', alpha=0.2, label='Testing Loss Band')
+plt.plot(epochs_range[1:], test_l2_log[1:], color='orange', label='Average Testing Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Test Dataset Error')
+plt.legend(loc='best')
+plt.grid(alpha=0.5)
+plt.ylim((0, 1.1))
+full_name = folder + '/' + "TestErrorTrend"
+plt.savefig(full_name + '.png', dpi=600, bbox_inches='tight')
+plt.show()
+
+# plot the convergence of the losses
+# plt.plot(train_l2_log, label='Train L2')
+# plt.plot(train_l2_data_log, label='Train L2 Data')
+# plt.plot(test_l2_log, label='Test L2')
+# plt.legend()
+# plt.show()
+
+# plt.figure()
+# plt.plot(test_l2_log)
+# plt.legend()
+# plt.title("Test error trend during training")
+# os.makedirs(folder, exist_ok=True)
+# full_name = folder + '/' + "ErrorTrend"
+# plt.savefig(full_name + '.png', dpi=600, bbox_inches='tight')
+# plt.show()
+
+# plt.figure()
+# plt.plot(train_l2_log[1:])
+# plt.legend()
+# plt.title("Loss function convergence")
+# os.makedirs(folder, exist_ok=True)
+# full_name = folder + '/' + "ErrorTrend"
+# plt.savefig(full_name + '.png', dpi=600, bbox_inches='tight')
+# plt.show()
 
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(F_test, U_test), batch_size=1, shuffle=False)
 pred = torch.zeros(U_test.squeeze().shape)
@@ -119,24 +192,17 @@ with torch.no_grad():
 test_l2_set = torch.tensor(test_l2_set)
 test_l2_avg = torch.mean(test_l2_set)
 test_l2_std = torch.std(test_l2_set)
+test_l2_min, min_idx = torch.min(test_l2_set), torch.argmin(test_l2_set)
+test_l2_max, max_idx = torch.max(test_l2_set), torch.argmax(test_l2_set)
+test_l2_mode, mode_count = torch.mode(test_l2_set)
+mode_indices = torch.nonzero(test_l2_set == test_l2_mode).squeeze().tolist()
 
 print("The average testing error is", test_l2_avg.item())
 print("Std. deviation of testing error is", test_l2_std.item())
 print("Min testing error is", torch.min(test_l2_set).item())
 print("Max testing error is", torch.max(test_l2_set).item())
+print("Min testing error is", test_l2_min.item(), "at index", min_idx.item())
+print("Max testing error is", test_l2_max.item(), "at index", max_idx.item())
+print("Mode of testing errors is", test_l2_mode.item(), "appearing", mode_count.item(),
+      "times at indices", mode_indices)
 
-# Plotting a random function from the test data generated by GRF
-index = 90  # random.randrange(0, nTest)
-x_test_plot = np.linspace(0, L, s + 2).astype('float32')
-u_exact = F.pad(y_test2[index, :].squeeze(), (1, 1), mode='constant', value=0)
-u_pred = F.pad(pred[index, :], (1, 1), mode='constant', value=0)
-plot_pred(x_test_plot, u_exact, u_pred, 'GRF')
-
-# Testing for a uniform load p(x) = constant
-w = 20.0  # distributed load
-u_test_uniform = np.full_like(x_test_plot, w).reshape(1, s + 2, 1)  # Uniformly distributed load
-y_test_uniform = -((w / (24 * E * I)) * (L**3 * x_test_plot - 2 * L * x_test_plot**3 + x_test_plot**4)).astype('float32')
-u_test_uniform = torch.tensor(u_test_uniform[:, 1:-1, :]).to(device)
-pred_uniform = model(u_test_uniform).view(-1).cpu().detach().numpy()
-pred_uniform = np.concatenate(([0.], pred_uniform, [0.]), axis=0)
-plot_pred(x_test_plot, y_test_uniform, pred_uniform, 'uniform_load')
