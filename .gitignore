@@ -1,0 +1,29 @@
+*.out
+.DS_Store
+*.vtk
+*.vtu
+*.asv
+*.m~
+*.fig
+*.vts
+*.pdf
+*.jpg
+*.png
+*.jpeg
+*.npz
+
+# Ignore file swap
+*.swp
+# Ignore folder idea of pycharm idea
+.idea/
+# Ignore file python compiled code
+*.pyc
+*.pt
+*.pth
+*.mat
+*.log
+*.npy
+*.zip
+core.32826
+*.pvd
+*.pkl
