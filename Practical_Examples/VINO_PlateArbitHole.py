@@ -126,8 +126,8 @@ model_data["n_test"] = 200
 model_data["n_data"] = model_data["n_train"] + model_data["n_test"]
 model_data["n_dataset"] = 1200
 model_data["batch_size"] = 20
-model_data["batch_size_BFGS"] = 20#50
-model_data["num_epoch"] = 100#2000
+model_data["batch_size_BFGS"] = 50
+model_data["num_epoch"] = 50  # 2000
 model_data["num_epoch_LBFGS"] = 100
 model_data["nrg"] = random.PRNGKey(0)
 model_data["data_type"] = 'float32'
@@ -135,15 +135,15 @@ if model_data["data_type"] == 'float64':
     jax.config.update("jax_enable_x64", True)
 
 model_data["fno"] = dict()
-model_data["fno"]["mode1"] = 8  # 12  # 8
-model_data["fno"]["mode2"] = 8  # 12  # 8
-model_data["fno"]["width"] = 32  # 64  # 32
-model_data["fno"]["depth"] = 8  # 4
+model_data["fno"]["mode1"] = 8
+model_data["fno"]["mode2"] = 8
+model_data["fno"]["width"] = 32
+model_data["fno"]["depth"] = 8
 model_data["fno"]["channels_last_proj"] = 128
 model_data["fno"]["padding"] = 56
-model_data["fno"]["learning_rate"] = 0.01
-model_data["fno"]["weight_decay"] = 1e-5  # 1e-4
-model_data["fno"]["scheduled"] = False#True
+model_data["fno"]["learning_rate"] = 0.01  # 0.001
+model_data["fno"]["weight_decay"] = 1e-5
+model_data["fno"]["scheduled"] = False
 
 model_data["GRF"] = dict()
 model_data["GRF"]["alpha"] = 10.
@@ -364,8 +364,8 @@ test_loader = DataLoader(
     collate_fn=collate_fn
 )
 
-print("Evaluating Train Data")
-model_evaluation(model, model_data, model_params, loss_fn, train_loader, normalizers)
+# print("Evaluating Train Data")
+# model_evaluation(model, model_data, model_params, loss_fn, train_loader, normalizers)
 print("Evaluating Test Data")
 model_evaluation(model, model_data, model_params, loss_fn, test_loader, normalizers)
 
