@@ -5,6 +5,10 @@ Problem statement:
     \\Omega = (0,5)x(0,5)
     Fixed BC: x = 0
     Traction \\tau = 1 at y=5 in the horizontal direction
+
+Note: To achieve the result as same as the paper, use the default hyperparameters and run the code, 
+and then, change num_epoch = 2000 and learning_rate = 0.001 and run the code to continue the training process. 
+The other option is using the scheduled Adam optimizer. 
 """
 import os
 # import sys
