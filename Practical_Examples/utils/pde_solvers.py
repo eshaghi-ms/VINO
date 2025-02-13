@@ -420,10 +420,10 @@ def PlateHole_solver(model_data, GRF_data):
         return [0., 0.]
 
     #  Neumann B.C. τ(x,y) = [x, y] on the top boundary
-    _y = np.linspace(0, beam_width, num_pts_v)[:, None].flatten()
+    _Y = np.linspace(0, beam_width, num_pts_v)[:, None].flatten()
 
     def u_bound_neu(x, y, nx, ny):
-        return [np.interp(y, _y, traction), 0.]
+        return [np.interp(y, _Y, traction), 0.]
 
     bound_right = boundary2D("Neumann", 0, "right", u_bound_neu)
     bound_left = boundary2D("Dirichlet", 0, "left", u_bound_dir_fixed)
