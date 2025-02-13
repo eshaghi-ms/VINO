@@ -47,8 +47,17 @@ For any inquiries or issues regarding this repository, please feel free to reach
 If you use this code in your research, please cite the following paper:
 
 ```bibtex
-@article{eshaghi2025,
-  
+@article{eshaghi2025vino,
+title = {Variational Physics-informed Neural Operator (VINO) for solving partial differential equations},
+journal = {Computer Methods in Applied Mechanics and Engineering},
+volume = {437},
+pages = {117785},
+year = {2025},
+issn = {0045-7825},
+doi = {https://doi.org/10.1016/j.cma.2025.117785},
+url = {https://www.sciencedirect.com/science/article/pii/S004578252500057X},
+author = {Mohammad Sadegh Eshaghi and Cosmin Anitescu and Manish Thombre and Yizheng Wang and Xiaoying Zhuang and Timon Rabczuk},
+keywords = {Neural operator, Physics-informed neural network, Physics-informed neural operator, Partial differential equation, Machine learning},
 }
 ```
  
