@@ -369,9 +369,9 @@ test_loader = DataLoader(
 )
 
 # print("Evaluating Train Data")
-# model_evaluation(model, model_data, model_params, loss_fn, train_loader, normalizers)
+# model_evaluation(model, model_data, model_params, loss_fn, train_loader, normalizers, mask=True)
 print("Evaluating Test Data")
-model_evaluation(model, model_data, model_params, loss_fn, test_loader, normalizers)
+model_evaluation(model, model_data, model_params, loss_fn, test_loader, normalizers, mask=True)
 
 # Train Dataset
 
